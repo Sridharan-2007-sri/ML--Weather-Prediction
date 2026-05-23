@@ -11,10 +11,10 @@ To write a program to predict daily temperature , PM2.5 pollution level and Ener
 2. Anaconda – Python 3.7 Installation / Jupyter notebook
 
 ## Algorithm
-1.Data Preparation: Load the weather dataset and handle missing values by replacing them with the mean of their respective columns.
-2.Feature Selection: Define the input features (X) using variables like humidity and CO_2, and set the target variables (y) for Pollution, Temperature, and Energy.
-3.Model Training: Split the data into training and testing sets (80/20) and train a DecisionTreeRegressor with a maximum depth of 5 for each target.
-4.Evaluation: Predict values on the test set and calculate performance metrics, specifically RMSE for error margin and R^2 Score for accuracy.
+1. Data Preparation: Load the weather dataset and handle missing values by replacing them with the mean of their respective columns.
+2. Feature Selection: Define the input features (X) using variables like humidity and CO_2, and set the target variables (y) for Pollution, Temperature, and Energy.
+3. Model Training: Split the data into training and testing sets (80/20) and train a DecisionTreeRegressor with a maximum depth of 5 for each target.
+4. Evaluation: Predict values on the test set and calculate performance metrics, specifically RMSE for error margin and R^2 Score for accuracy.
 
 ## Program:
 ```
@@ -23,50 +23,103 @@ Program to implement the Random Forest Algorithm to predict daily temperature , 
 Developed by: Sridharan B
 RegisterNumber:  212225230272
 */
+# Decision Tree Regression for Pollution, Temperature & Energy Prediction
+
 
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_squared_error, r2_score
 
-data = {
-    'CustomerID': [1,2,3,4,5,6,7,8,9,10],
-    'Gender': ['Male','Female','Female','Male','Female','Male','Male','Female','Female','Male'],
-    'Age': [19,21,20,23,31,22,35,30,25,28],
-    'Annual Income (k$)': [15,16,17,18,19,20,21,22,23,24],
-    'Spending Score (1-100)': [39,81,6,77,40,76,6,94,3,72]
-}
-
-df = pd.DataFrame(data)
-
-X = df[['Annual Income (k$)', 'Spending Score (1-100)']]
-
-kmeans = KMeans(n_clusters=3, init='k-means++', random_state=42)
-df['Cluster'] = kmeans.fit_predict(X)  # Automatically fits and assigns clusters
+data = pd.read_csv("weather.csv")
 
 
-plt.figure(figsize=(8,6))
-for i in range(3):
-    plt.scatter(X[df['Cluster']==i]['Annual Income (k$)'],
-                X[df['Cluster']==i]['Spending Score (1-100)'],
-                label=f'Cluster {i+1}')
+X = data[['hum', 'pressure', 'wind_speed', 'illumination', 'co2']]
 
-# Plot centroids
-plt.scatter(kmeans.cluster_centers_[:,0], kmeans.cluster_centers_[:,1],
-            s=200, c='yellow', label='Centroids', marker='X')
+X = X.fillna(X.mean())
 
-plt.title('Customer Segmentation (K-Means)')
-plt.xlabel('Annual Income (k$)')
-plt.ylabel('Spending Score (1-100)')
-plt.legend()
-plt.show()
+# =========================
+# 1. Pollution Prediction (PM2.5)
+# =========================
+y_pollution = data['pm2_5'].fillna(data['pm2_5'].mean())
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y_pollution, test_size=0.2, random_state=42
+)
+
+pollution_model = DecisionTreeRegressor(random_state=42, max_depth=5)
+pollution_model.fit(X_train, y_train)
+
+pollution_pred = pollution_model.predict(X_test)
+
+rmse_pollution = np.sqrt(mean_squared_error(y_test, pollution_pred))
+r2_pollution = r2_score(y_test, pollution_pred)
+accuracy_pollution = r2_pollution * 100
+
+print("🏭 Pollution Prediction (PM2.5)")
+print("Accuracy (%):", accuracy_pollution)
+
+print("R2 Score:", r2_pollution)
 
 
-print(df)
+print("RMSE:", rmse_pollution)
+print("R2 Score:", r2_pollution)
+
+
+# =========================
+# 2. Temperature Prediction
+# =========================
+y_temp = data['tem'].fillna(data['tem'].mean())
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y_temp, test_size=0.2, random_state=42
+)
+
+temp_model = DecisionTreeRegressor(random_state=42, max_depth=5)
+temp_model.fit(X_train, y_train)
+
+temp_pred = temp_model.predict(X_test)
+
+rmse_temp = np.sqrt(mean_squared_error(y_test, temp_pred))
+r2_temp = r2_score(y_test, temp_pred)
+accuracy_temp = r2_temp * 100
+print("\n🌡️ Temperature Prediction")
+print("Accuracy (%):", accuracy_temp)
+print("RMSE:", rmse_temp)
+print("R2 Score:", r2_temp)
+
+
+# =========================
+# 3. Energy Prediction (TSR)
+# =========================
+y_energy = data['tsr'].fillna(data['tsr'].mean())
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y_energy, test_size=0.2, random_state=42
+)
+
+energy_model = DecisionTreeRegressor(random_state=42, max_depth=5)
+energy_model.fit(X_train, y_train)
+
+energy_pred = energy_model.predict(X_test)
+
+rmse_energy = np.sqrt(mean_squared_error(y_test, energy_pred))
+r2_energy = r2_score(y_test, energy_pred)
+accuracy_energy = r2_energy * 100
+print("\n⚡ Energy Prediction (TSR)")
+print("Accuracy (%):", accuracy_energy)
+
+
+print("RMSE:", rmse_energy)
+print("R2 Score:", r2_energy)
 ```
 
 ## Output:
 
-<img width="877" height="803" alt="Screenshot 2026-05-15 144856" src="https://github.com/user-attachments/assets/50c51e88-a6a5-411b-b32b-4a96c05be0ff" />
+<img width="337" height="267" alt="image" src="https://github.com/user-attachments/assets/bb04fbdb-436a-4863-8cb5-a6f5b2960df5" />
 
 
 ## Result:
+
+To write a program to predict daily temperature , PM2.5 pollution level and Energy based on environmental sensor data using Random Forest Algorithm is completed successfully
